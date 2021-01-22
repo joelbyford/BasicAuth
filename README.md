@@ -54,3 +54,5 @@ In this example, a json file is loaded from the web app's root directory with th
 }
 ```
 This can of course be loaded in from a database call instead as long as users and passwords are loaded into a `Dictionary<string, string>`
+
+To see an example of this in use, please see `startup.cs` in the https://github.com/joelbyford/CSVtoJSONcore repo.
