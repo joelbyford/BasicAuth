@@ -25,8 +25,6 @@ jobs:
         with:
           dotnet-version: 5.0.x
           source-url: https://nuget.pkg.github.com/${{github.repository_owner}}/index.json
-        env:
-          NUGET_AUTH_TOKEN: '%NUGET_AUTH_TOKEN%'
           
       # Restore Dependancies (can be omitted is you remove --no-restore on build step)
       - name: Restore package dependencies
@@ -43,8 +41,7 @@ jobs:
       
       # Upload the artifact to a GitHub 'Nuget' artifact repo
       - name: dotnet push
-        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg
-        env:
-          NUGET_AUTH_TOKEN: ${{github.token}}
+        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{github.token}} --skip-duplicate
+
         
       
