@@ -45,7 +45,7 @@ jobs:
           # Artifact name
           name: nupkg # optional, default is `artifact`
           # A file, directory or wildcard pattern that describes what to upload
-          path: ${{env.DOTNET_ROOT}}/myapp # Make this the same as the -o setting on pack in the prior step
+          path: ${{env.DOTNET_ROOT}}/myapp/*.nupkg # Make this the same as the -o setting on pack in the prior step
           # The desired behavior if no files are found using the provided path. Available Options:
           # - warn: Output a warning but do not fail the action
           # - error: Fail the action with an error message
