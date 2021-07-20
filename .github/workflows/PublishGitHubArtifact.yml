@@ -36,10 +36,10 @@ jobs:
       # Pack the project for Nuget
       - name: dotnet pack
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
-        run: dotnet pack -v normal -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$GITHUB_RUN_ID -o ${{env.DOTNET_ROOT}}/myapp 
+        run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=$GITHUB_RUN_ID -o ${{env.DOTNET_ROOT}}/myapp 
       
       # Upload the artifact to a GitHub 'Nuget' artifact repo
       - name: Upload a Build Artifact
-        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/joelbyford/BasicAuth/index.json --skip-duplicate --no-symbols
+        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/joelbyford/BasicAuth/index.json --skip-duplicate
         
       
