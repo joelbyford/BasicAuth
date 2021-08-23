@@ -108,19 +108,29 @@ namespace joelbyford
                 {
                     //if it's good, pass them on to the next middleware step in the pipeline
                     await next.Invoke(context);
-                    return;
                 }
+                else
+                {
+                    // Return unauthorized
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
+                return;
+            }
+            else
+            {
+                // Return authentication type (causes browser to show login dialog)
+                context.Response.Headers[HttpWwwAuthenticateHeader] = HttpBasicSchemeName;
+                // Add realm if it is not null
+                if (!string.IsNullOrWhiteSpace(realm))
+                {
+                    context.Response.Headers[HttpWwwAuthenticateHeader] += $" realm=\"{realm}\"";
+                }
+                // Return unauthorized
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return;
             }
 
-            // Return authentication type (causes browser to show login dialog)
-            context.Response.Headers[HttpWwwAuthenticateHeader] = HttpBasicSchemeName;
-            // Add realm if it is not null
-            if (!string.IsNullOrWhiteSpace(realm))
-            {
-                context.Response.Headers[HttpWwwAuthenticateHeader] += $" realm=\"{realm}\"";
-            }
-            // Return unauthorized
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            
         }
 
         public bool IsAuthorized(string username, string password)
