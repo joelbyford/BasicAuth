@@ -1,8 +1,0 @@
-
-# Unprotected Should Return Error
-GET https://localhost:5001/WeatherForecast
-
-####
-# Basic Auth
-GET https://localhost:5001/WeatherForecast
-Authorization: Basic testUser:testPassword
