@@ -19,6 +19,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
+      # Get the latest version tag to duplicate it in the nuget package
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: joelbyford/BasicAuth  # The repository to scan.
+          releases-only: true  # We know that all relevant tags have a GitHub release for them.
+        id: latesttag  # The step ID to refer to later.
+      
       # Install DotNet 5 SDK
       - name: Setup dotnet 5.0.x
         uses: actions/setup-dotnet@v1
@@ -39,7 +46,7 @@ jobs:
       # Pack the project for Nuget
       - name: dotnet pack
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
-        run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=$GITHUB_RUN_ID -o ${{env.DOTNET_ROOT}}/myapp 
+        run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.DOTNET_ROOT}}/myapp 
       
       # Upload the artifact to a GitHub 'Nuget' artifact repo
       - name: dotnet push
