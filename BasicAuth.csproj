@@ -5,7 +5,7 @@
     <Title>BasicAuthLibirary</Title>
     <PackageId>joelbyford.BasicAuth</PackageId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Joel Byford</Authors>
     <Company>Mathco Software</Company>
     <Product>joelbyford.BasicAuthLibirary</Product>
