@@ -1,5 +1,5 @@
 # BasicAuth
-A library which includes a dotnet 6  Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  
+A library which includes a dotnet 6 Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  Please note, Basic Auth is one of the oldest forms of web authentication and is [not known for being the most secure](https://datatracker.ietf.org/doc/html/rfc2617).  Use and implement at your own risk and of course only use in conjunction with secure communications protocols (e.g. SSL) to prevent sending user names and passwords unencrypted over the Internet. 
 
 ## Install - Leveraging [NuGet Package](https://www.nuget.org/packages/joelbyford.BasicAuth/)
 Assuming you would like to add the library to your project via a NuGet package, the following are the steps required:
