@@ -26,7 +26,7 @@ jobs:
           releases-only: true  # We know that all relevant tags have a GitHub release for them.
         id: latesttag  # The step ID to refer to later.
       
-      # Install DotNet 5 SDK
+      # Install DotNet SDK
       - name: Setup dotnet 6.0.x
         uses: actions/setup-dotnet@v1
         with:
@@ -35,7 +35,7 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           
-      # Restore Dependancies (can be omitted is you remove --no-restore on build step)
+      # Restore Dependancies (can be omitted if you remove --no-restore on build step)
       - name: Restore package dependencies
         run: dotnet restore
 
@@ -49,7 +49,7 @@ jobs:
         run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.DOTNET_ROOT}}/myapp 
       
       # Upload the artifact to a GitHub 'Nuget' artifact repo
-      - name: dotnet push
+      - name: dotnet nuget push
         run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --skip-duplicate
 
         
