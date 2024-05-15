@@ -1,3 +1,5 @@
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8943/badge)](https://www.bestpractices.dev/projects/8943)
+
 # BasicAuth
 A library which includes a dotnet 6 Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  Please note, Basic Auth is one of the oldest forms of web authentication and is [not known for being the most secure](https://datatracker.ietf.org/doc/html/rfc2617).  Use and implement at your own risk and of course only use in conjunction with secure communications protocols (e.g. SSL) to prevent sending user names and passwords unencrypted over the Internet. 
 
