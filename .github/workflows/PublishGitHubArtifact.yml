@@ -27,10 +27,10 @@ jobs:
         id: latesttag  # The step ID to refer to later.
       
       # Install DotNet SDK
-      - name: Setup dotnet 6.0.x
+      - name: Setup dotnet 10.x
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 10.x
           source-url: https://nuget.pkg.github.com/${{github.repository_owner}}/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
