@@ -1,0 +1,54 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Manually Publish NuGet.org
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write   # REQUIRED for OIDC
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      # Get the latest version tag to duplicate it in the nuget package
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: joelbyford/BasicAuth  # The repository to scan.
+          releases-only: true  # We know that all relevant tags have a GitHub release for them.
+        id: latesttag  # The step ID to refer to later.
+
+      # Install DotNet SDK
+      - name: Setup dotnet 10.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x
+
+      # Restore Dependancies (can be omitted if you remove --no-restore on build step)
+      - name: Restore package dependencies
+        run: dotnet restore
+
+      # Build the project
+      - name: dotnet build
+        run: dotnet build --no-restore --configuration Release
+
+      # Pack the project for Nuget
+      - name: dotnet pack
+        if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
+        run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.DOTNET_ROOT}}/myapp
+
+      # Upload the artifact to NuGet.org
+      - name: dotnet nuget push
+        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate

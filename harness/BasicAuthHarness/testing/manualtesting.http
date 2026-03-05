@@ -1,0 +1,30 @@
+####
+# Missing Auth
+# Expect 401
+####
+POST http://localhost:5057/bogus
+X-Forwarded-Proto: https
+
+####
+# Bad Credentials
+# Expect 401
+####
+POST http://localhost:5057/bogus
+X-Forwarded-Proto: https
+Authorization: Basic badUser:badPassword
+
+####
+# Good Credentials but Bad Path
+# Expect 404
+####
+POST http://localhost:5057/bogus
+X-Forwarded-Proto: https
+Authorization: Basic demoUser:demoPass!123
+
+####
+# Good Credentials
+# Expect 200
+####
+GET http://localhost:5057/health
+X-Forwarded-Proto: https
+Authorization: Basic demoUser:demoPass!123

@@ -1,0 +1,67 @@
+name: PR Harness Bash Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  harness-bash-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore harness dependencies
+        run: dotnet restore harness/BasicAuthHarness/BasicAuthHarness.csproj
+
+      - name: Build harness project
+        run: dotnet build harness/BasicAuthHarness/BasicAuthHarness.csproj --configuration Release --no-restore
+
+      - name: Start harness
+        shell: bash
+        run: |
+          dotnet run --project harness/BasicAuthHarness/BasicAuthHarness.csproj --configuration Release --no-build --urls "http://localhost:5057" > harness.log 2>&1 &
+          echo "HARNESS_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for harness readiness
+        shell: bash
+        run: |
+          for i in {1..30}; do
+            status="$(curl -s -o /dev/null -w "%{http_code}" -X POST "http://localhost:5057/bogus" -H "X-Forwarded-Proto: https" || true)"
+            if [ "$status" = "401" ]; then
+              echo "Harness is ready"
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Harness did not become ready in time"
+          cat harness.log || true
+          exit 1
+
+      - name: Run bash auth assertions
+        shell: bash
+        run: bash harness/BasicAuthHarness/testing/test-auth.sh
+
+      - name: Print harness log on failure
+        if: failure()
+        shell: bash
+        run: cat harness.log || true
+
+      - name: Stop harness
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${HARNESS_PID:-}" ]; then
+            kill "$HARNESS_PID" || true
+          fi

@@ -5,7 +5,7 @@
     <Title>BasicAuthLibirary</Title>
     <PackageId>joelbyford.BasicAuth</PackageId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.2.1</Version>
+    <Version>2.0.0</Version>
     <Authors>Joel Byford</Authors>
     <Company>Mathco Software</Company>
     <Product>joelbyford.BasicAuthLibirary</Product>
@@ -13,11 +13,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/joelbyford/BasicAuth</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>A library which includes a dotnet 5+ Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  See GitHub repo for usage instructions.</Description>
+    <Description>A library which includes a dotnet Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  See GitHub repo for usage instructions.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="harness\**\*.cs" />
   </ItemGroup>
 
 </Project>
