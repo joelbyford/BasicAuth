@@ -1,6 +1,6 @@
 # Overall Review (ask mode)
 ```
-Reviewing this project, are there any major or minor security concerns with how its written?  Anything I should consider doing differently?
+Reviewing this project, are there any major or minor security concerns with how it's written?  Anything I should consider doing differently?
 ```
 
 # Plan for change (plan mode)
