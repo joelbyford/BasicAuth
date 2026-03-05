@@ -116,13 +116,8 @@ namespace joelbyford
                 return;
             }
 
-            if (!TryGetCredentials(context, out string username, out string password, out bool hadAuthorizationHeader))
+            if (!TryGetCredentials(context, out string username, out string password))
             {
-                if (hadAuthorizationHeader)
-                {
-                    RegisterFailedAttempt(clientKey, null, now);
-                }
-
                 WriteUnauthorizedResponse(context);
                 return;
             }
@@ -154,18 +149,16 @@ namespace joelbyford
             return SecureEquals(expectedPassword, password);
         }
 
-        private bool TryGetCredentials(HttpContext context, out string username, out string password, out bool hadAuthorizationHeader)
+        private bool TryGetCredentials(HttpContext context, out string username, out string password)
         {
             username = string.Empty;
             password = string.Empty;
-            hadAuthorizationHeader = false;
 
             if (!context.Request.Headers.TryGetValue(HttpAuthorizationHeader, out var authorizationValues))
             {
                 return false;
             }
 
-            hadAuthorizationHeader = true;
             string authorizationHeader = authorizationValues.ToString();
             if (string.IsNullOrWhiteSpace(authorizationHeader))
             {
