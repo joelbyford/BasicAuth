@@ -87,6 +87,34 @@ In a second terminal, run the included curl test script:
 powershell -ExecutionPolicy Bypass -File .\harness\BasicAuthHarness\testing\test-auth.ps1
 ```
 
+### Auth Test Scripts (PowerShell + Bash)
+Both scripts validate the same 4 assertions:
+- Missing Authorization header -> `401`
+- Invalid credentials -> `401`
+- Valid credentials to `POST /bogus` -> `404`
+- Valid credentials to `GET /health` -> `200`
+
+Each script prints `PASS`/`FAIL` for every assertion, then prints:
+- `true` if all assertions pass (process exit code `0`)
+- `false` if any assertion fails (process exit code `1`)
+
+PowerShell usage:
+```
+powershell -ExecutionPolicy Bypass -File .\harness\BasicAuthHarness\testing\test-auth.ps1
+powershell -ExecutionPolicy Bypass -File .\harness\BasicAuthHarness\testing\test-auth.ps1 "http://localhost:5057" "demoUser" "demoPass!123"
+```
+
+Bash usage:
+```
+bash harness/BasicAuthHarness/testing/test-auth.sh
+bash harness/BasicAuthHarness/testing/test-auth.sh http://localhost:5057 demoUser demoPass!123
+```
+
+Parameter order for both scripts:
+1. `BaseUrl`
+2. `User`
+3. `Pass`
+
 Alternatively you may call the tests via the [REST Client VSCode plugin](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) in the testing.http file.  
 
 Expected results:
@@ -96,3 +124,13 @@ Expected results:
 - Valid credentials to `GET /health` -> `200 OK`
 
 Note: The harness runs on HTTP for convenience and uses `X-Forwarded-Proto: https` in curl commands to simulate TLS termination at a reverse proxy.
+
+### Recommended Branch Protection Check
+If you use GitHub branch protection for `main`, require the status check from this workflow:
+- Workflow: `PR Harness Bash Test`
+- Job/check name: `harness-bash-test`
+
+In GitHub, go to **Settings -> Branches -> Branch protection rules** for `main` and add this check under **Require status checks to pass before merging**.
+
+### Test Usage of X-Forwarded-Proto: https
+*PLEASE NOTE* this library allows the developer to use `X-Forwarded-Proto: https` in the API calls to ease development and testing in environments (like local workstations) that do not have SSL certificates installed.  Do NOT use this in production as it will expose passwords in clear text without a secure SSL socket.  
