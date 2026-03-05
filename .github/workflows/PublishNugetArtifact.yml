@@ -49,6 +49,13 @@ jobs:
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
         run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.DOTNET_ROOT}}/myapp
 
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: joelbyford  # Your NuGet.org username
+
       # Upload the artifact to NuGet.org
       - name: dotnet nuget push
-        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
