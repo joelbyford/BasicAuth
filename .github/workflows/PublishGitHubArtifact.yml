@@ -2,19 +2,22 @@
 
 name: Manually Publish Nuget
 
-# Controls when the workflow will run
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write   # REQUIRED for OIDC
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    env:
+      OUTPUT_DIRECTORY: ./output
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -31,26 +34,60 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 10.x
-          source-url: https://nuget.pkg.github.com/${{github.repository_owner}}/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           
-      # Restore Dependancies (can be omitted if you remove --no-restore on build step)
+      # Restore Dependencies (can be omitted if you remove --no-restore on build step)
       - name: Restore package dependencies
         run: dotnet restore
 
       # Build the project
-      - name: dotet build
-        run: dotnet build --no-restore --configuration Release
+      - name: dotnet build
+        run: dotnet build --no-restore --configuration Release -o ${{ env.OUTPUT_DIRECTORY}}
+      
+        # Authenticate to Azure to use Artifact Signing
+      - name: 'Authenticate to Azure'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Pack the project for Nuget
+      # Sign the binaries using Artifact Signing
+      - name: Sign binaries with Artifact Signing
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://wus.codesigning.azure.net
+          signing-account-name: artSignByford
+          certificate-profile-name: pub-trust-github
+          files-folder: ${{ env.OUTPUT_DIRECTORY }}
+          files-folder-filter: dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # Pack the project
       - name: dotnet pack
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
-        run: dotnet pack -v normal -c Release --no-restore --include-source -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.DOTNET_ROOT}}/myapp 
-      
-      # Upload the artifact to a GitHub 'Nuget' artifact repo
-      - name: dotnet nuget push
-        run: dotnet nuget push ${{env.DOTNET_ROOT}}/myapp/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --skip-duplicate
+        run: dotnet pack --no-build --no-restore -c Release -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.OUTPUT_DIRECTORY}}
+
+      # Sign the NuGet package using Artifact Signing
+      - name: Sign NuGet package with Artifact Signing
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://wus.codesigning.azure.net
+          signing-account-name: artSignByford
+          certificate-profile-name: pub-trust-github
+          files-folder: ${{ env.OUTPUT_DIRECTORY }}
+          files-folder-filter: nupkg
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # Publish the artifact to GitHub Packages
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push "**/*.nupkg" \
+            --source "https://nuget.pkg.github.com/joelbyford/index.json" \
+            --skip-duplicate
+
 
         
       
