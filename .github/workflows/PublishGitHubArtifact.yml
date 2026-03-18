@@ -37,11 +37,11 @@ jobs:
           
       # Restore Dependencies (can be omitted if you remove --no-restore on build step)
       - name: Restore package dependencies
-        run: dotnet restore
+        run: dotnet restore BasicAuth.csproj
 
       # Build the project
       - name: dotnet build
-        run: dotnet build --no-restore --configuration Release -o ${{ env.OUTPUT_DIRECTORY}}
+        run: dotnet build BasicAuth.csproj --no-restore --configuration Release
       
         # Authenticate to Azure to use Artifact Signing
       - name: 'Authenticate to Azure'
@@ -58,7 +58,7 @@ jobs:
           endpoint: https://wus.codesigning.azure.net
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
-          files-folder: ${{ env.OUTPUT_DIRECTORY }}
+          files-folder: ./artifacts/build/
           files-folder-filter: dll
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -67,7 +67,7 @@ jobs:
       # Pack the project
       - name: dotnet pack
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
-        run: dotnet pack --no-build --no-restore -c Release -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.OUTPUT_DIRECTORY}}
+        run: dotnet pack BasicAuth.csproj--no-build --no-restore -c Release -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.OUTPUT_DIRECTORY}}
 
       # Sign the NuGet package using Artifact Signing
       - name: Sign NuGet package with Artifact Signing

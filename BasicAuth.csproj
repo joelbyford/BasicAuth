@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/joelbyford/BasicAuth</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>A library which includes a dotnet Basic Authentication middleware component which can be added to dotnet web and API apps on Azure to enable classic/old RFC 2617 Basic Authentication.  See GitHub repo for usage instructions.</Description>
+    <OutputPath>artifacts\build\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
