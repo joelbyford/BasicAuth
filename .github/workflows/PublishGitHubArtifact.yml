@@ -19,7 +19,6 @@ jobs:
     env:
       OUTPUT_DIRECTORY: ./output
       BINARIES_DIRECTORY: ./artifacts/build/net10.0
-      NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -36,6 +35,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 10.x
+          source-url: https://nuget.pkg.github.com/joelbyford/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       # Restore Dependencies (can be omitted if you remove --no-restore on build step)
       - name: Restore package dependencies
