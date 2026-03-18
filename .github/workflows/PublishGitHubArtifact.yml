@@ -111,7 +111,7 @@ jobs:
 
       - name: Sign NuGet package with DotNet Sign Tool
         shell: pwsh
-        run: .\sign code trusted-signing -kvu ${{ secrets.AZURE_CLIENTID }} -kvt ${{ secrets.AZURE_TENANTID }} -kvs ${{ secrets.AZURE_SUBSCRIPTIONID }} -kvc artSignByford -kcp pub-trust-github -t http://timestamp.acs.microsoft.com -d SHA256 "${{ env.OUTPUT_DIRECTORY }}/*.nupkg"
+        run: .\sign code trusted-signing -tse "https://wus.codesigning.azure.net" -tsa artSignByford -tscp pub-trust-github -t "http://timestamp.acs.microsoft.com" -d SHA256 "${{ env.OUTPUT_DIRECTORY }}/*.nupkg"
 
       # Publish the artifact to GitHub Packages
       - name: Publish to GitHub Packages
