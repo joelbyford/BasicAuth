@@ -15,7 +15,7 @@ permissions:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       OUTPUT_DIRECTORY: ./output
       BINARIES_DIRECTORY: ./artifacts/build/net10.0
@@ -66,7 +66,7 @@ jobs:
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
           files-folder: ${{ env.BINARIES_DIRECTORY }}
-          files-folder-filter: '*.dll'
+          files-folder-filter: dll
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
@@ -90,7 +90,7 @@ jobs:
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
           files-folder: ${{ env.OUTPUT_DIRECTORY }}
-          files-folder-filter: '*.nupkg'
+          files-folder-filter: nupkg
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
