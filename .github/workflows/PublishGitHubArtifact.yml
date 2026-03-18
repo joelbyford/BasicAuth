@@ -19,6 +19,7 @@ jobs:
     env:
       OUTPUT_DIRECTORY: ./output
       BINARIES_DIRECTORY: ./artifacts/build/net10.0
+      NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -115,7 +116,17 @@ jobs:
 
       # Publish the artifact to GitHub Packages
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "${{ env.OUTPUT_DIRECTORY }}/*.nupkg" --source "https://nuget.pkg.github.com/joelbyford/index.json" --skip-duplicate
+        shell: pwsh
+        run: |
+          $packages = Get-ChildItem -Path "${{ env.OUTPUT_DIRECTORY }}" -Filter *.nupkg -File
+          if (-not $packages) {
+            throw "No .nupkg files found in ${{ env.OUTPUT_DIRECTORY }}"
+          }
+
+          foreach ($package in $packages) {
+            dotnet nuget push "$($package.FullName)" --source "https://nuget.pkg.github.com/joelbyford/index.json" --skip-duplicate
+          }
+        
 
 
         
