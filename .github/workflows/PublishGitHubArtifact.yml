@@ -45,10 +45,14 @@ jobs:
         run: dotnet build BasicAuth.csproj --no-restore --configuration Release
 
       - name: Verify build outputs exist
+        shell: cmd
         run: |
-          echo "Listing build outputs in ${BINARIES_DIRECTORY}"
-          ls -la "${BINARIES_DIRECTORY}"
-          test -f "${BINARIES_DIRECTORY}/BasicAuth.dll"
+          echo Listing build outputs in %BINARIES_DIRECTORY%
+          dir "%BINARIES_DIRECTORY%"
+          if not exist "%BINARIES_DIRECTORY%\BasicAuth.dll" (
+            echo BasicAuth.dll not found in %BINARIES_DIRECTORY%
+            exit /b 1
+          )
       
         # Authenticate to Azure to use Artifact Signing
       - name: 'Authenticate to Azure'
@@ -77,10 +81,15 @@ jobs:
         run: dotnet pack BasicAuth.csproj --no-build --no-restore -c Release -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.OUTPUT_DIRECTORY}}
 
       - name: Verify package outputs exist
+        shell: cmd
         run: |
-          echo "Listing package outputs in ${OUTPUT_DIRECTORY}"
-          ls -la "${OUTPUT_DIRECTORY}"
-          find "${OUTPUT_DIRECTORY}" -maxdepth 1 -name "*.nupkg" -type f
+          echo Listing package outputs in %OUTPUT_DIRECTORY%
+          dir "%OUTPUT_DIRECTORY%"
+          if not exist "%OUTPUT_DIRECTORY%\*.nupkg" (
+            echo No .nupkg files found in %OUTPUT_DIRECTORY%
+            exit /b 1
+          )
+          dir "%OUTPUT_DIRECTORY%\*.nupkg"
 
       # Sign the NuGet package using Artifact Signing
       - name: Sign NuGet package with Artifact Signing
@@ -97,9 +106,7 @@ jobs:
 
       # Publish the artifact to GitHub Packages
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "${{ env.OUTPUT_DIRECTORY }}/*.nupkg" \
-            --source "https://nuget.pkg.github.com/joelbyford/index.json" \
-            --skip-duplicate
+        run: dotnet nuget push "${{ env.OUTPUT_DIRECTORY }}/*.nupkg" --source "https://nuget.pkg.github.com/joelbyford/index.json" --skip-duplicate
 
 
         
