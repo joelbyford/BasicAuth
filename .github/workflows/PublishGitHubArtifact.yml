@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Manually Publish Nuget
+name: Manually Publish GitHub Artifact
 
 on:
   # Allows you to run this workflow manually from the Actions tab
