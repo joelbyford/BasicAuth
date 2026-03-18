@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug BasicAuthHarness",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-harness",
+            "program": "${workspaceFolder}/harness/BasicAuthHarness/bin/Debug/net10.0/BasicAuthHarness.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/harness/BasicAuthHarness",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}
