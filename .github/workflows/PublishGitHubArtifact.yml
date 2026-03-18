@@ -92,17 +92,26 @@ jobs:
           dir "%OUTPUT_DIRECTORY%\*.nupkg"
 
       # Sign the NuGet package using Artifact Signing
-      - name: Sign NuGet package with Artifact Signing
-        uses: azure/artifact-signing-action@v1
-        with:
-          endpoint: https://wus.codesigning.azure.net
-          signing-account-name: artSignByford
-          certificate-profile-name: pub-trust-github
-          files-folder: ${{ env.OUTPUT_DIRECTORY }}
-          files-folder-filter: nupkg
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
+      # ------ NOT SUPPORTED TODAY, USING THE DOTNET SIGNING CAPABILITY INSTEAD ------
+      #- name: Sign NuGet package with Artifact Signing
+      #  uses: azure/artifact-signing-action@v1
+      #  with:
+      #    endpoint: https://wus.codesigning.azure.net
+      #    signing-account-name: artSignByford
+      #    certificate-profile-name: pub-trust-github
+      #    files-folder: ${{ env.OUTPUT_DIRECTORY }}
+      #    files-folder-filter: nupkg
+      #    file-digest: SHA256
+      #    timestamp-rfc3161: http://timestamp.acs.microsoft.com
+      #    timestamp-digest: SHA256
+
+      - name: Install DotNet Sign Tool
+        shell: pwsh
+        run: dotnet tool install sign --tool-path . --prerelease
+
+      - name: Sign NuGet package with DotNet Sign Tool
+        shell: pwsh
+        run: .\sign code trusted-signing -kvu ${{ secrets.AZURE_CLIENTID }} -kvt ${{ secrets.AZURE_TENANTID }} -kvs ${{ secrets.AZURE_SUBSCRIPTIONID }} -kvc artSignByford -kcp pub-trust-github -t http://timestamp.acs.microsoft.com -d SHA256 "${{ env.OUTPUT_DIRECTORY }}/*.nupkg"
 
       # Publish the artifact to GitHub Packages
       - name: Publish to GitHub Packages
