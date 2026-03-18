@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OUTPUT_DIRECTORY: ./output
+      BINARIES_DIRECTORY: ./artifacts/build/net10.0
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -42,6 +43,12 @@ jobs:
       # Build the project
       - name: dotnet build
         run: dotnet build BasicAuth.csproj --no-restore --configuration Release
+
+      - name: Verify build outputs exist
+        run: |
+          echo "Listing build outputs in ${BINARIES_DIRECTORY}"
+          ls -la "${BINARIES_DIRECTORY}"
+          test -f "${BINARIES_DIRECTORY}/BasicAuth.dll"
       
         # Authenticate to Azure to use Artifact Signing
       - name: 'Authenticate to Azure'
@@ -58,8 +65,8 @@ jobs:
           endpoint: https://wus.codesigning.azure.net
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
-          files-folder: /artifacts/build/net10.0
-          files-folder-filter: dll
+          files-folder: ${{ env.BINARIES_DIRECTORY }}
+          files-folder-filter: '*.dll'
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
@@ -69,6 +76,12 @@ jobs:
         if: success()  # this should be implied, but adding just to be sure this runs only when the previous steps are successfull
         run: dotnet pack BasicAuth.csproj --no-build --no-restore -c Release -p:PackageVersion=${{ steps.latesttag.outputs.tag }} -o ${{env.OUTPUT_DIRECTORY}}
 
+      - name: Verify package outputs exist
+        run: |
+          echo "Listing package outputs in ${OUTPUT_DIRECTORY}"
+          ls -la "${OUTPUT_DIRECTORY}"
+          find "${OUTPUT_DIRECTORY}" -maxdepth 1 -name "*.nupkg" -type f
+
       # Sign the NuGet package using Artifact Signing
       - name: Sign NuGet package with Artifact Signing
         uses: azure/artifact-signing-action@v1
@@ -77,14 +90,14 @@ jobs:
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
           files-folder: ${{ env.OUTPUT_DIRECTORY }}
-          files-folder-filter: nupkg
+          files-folder-filter: '*.nupkg'
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
       # Publish the artifact to GitHub Packages
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "**/*.nupkg" \
+        run: dotnet nuget push "${{ env.OUTPUT_DIRECTORY }}/*.nupkg" \
             --source "https://nuget.pkg.github.com/joelbyford/index.json" \
             --skip-duplicate
 
