@@ -58,7 +58,7 @@ jobs:
           endpoint: https://wus.codesigning.azure.net
           signing-account-name: artSignByford
           certificate-profile-name: pub-trust-github
-          files-folder: ./artifacts/build/
+          files-folder: ${{ github.workspace }}/artifacts/build/net10.0
           files-folder-filter: dll
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
